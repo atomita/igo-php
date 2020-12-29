@@ -1,0 +1,30 @@
+{
+    "name": "atomita/igo",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "atomita"
+        }
+    ],
+    "require-dev": {
+        "brainmaestro/composer-git-hooks": "^2.8",
+        "friendsofphp/php-cs-fixer": "^2.17"
+    },
+    "scripts": {
+        "cghooks": "vendor/bin/cghooks",
+        "post-update-cmd": "cghooks update"
+    },
+    "extra": {
+        "hooks": {
+            "pre-commit": [
+                "for FILE in `git diff --staged --name-only | grep .php`; do",
+                "if [ -e $FILE ]; then",
+                "  ./vendor/bin/php-cs-fixer fix $FILE",
+                "  git add $FILE",
+                "fi",
+                "done"
+            ]
+        }
+    }
+}

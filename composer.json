@@ -9,11 +9,13 @@
     ],
     "require-dev": {
         "brainmaestro/composer-git-hooks": "^2.8",
-        "friendsofphp/php-cs-fixer": "^2.17"
+        "friendsofphp/php-cs-fixer": "^2.17",
+        "phpunit/phpunit": "^9.5"
     },
     "scripts": {
         "cghooks": "vendor/bin/cghooks",
-        "post-update-cmd": "cghooks update"
+        "post-update-cmd": "cghooks update",
+        "phpunit": "vendor/bin/phpunit"
     },
     "extra": {
         "hooks": {
@@ -25,6 +27,28 @@
                 "fi",
                 "done"
             ]
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "atomita\\Igo\\": "src/"
+        },
+        "classmap": [
+            "src"
+        ],
+        "exclude-from-classmap": [
+            "/tests/"
+        ],
+        "files": []
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     }
 }

@@ -3,7 +3,7 @@ namespace atomita\Igo;
 
 class Morpheme
 {
-    use Traits\Bean;
+    use Concerns\Bean;
 
     protected $surface;
     protected $feature;

@@ -1,5 +1,5 @@
 <?php
-namespace atomita\Igo\Traits;
+namespace atomita\Igo\Concerns;
 
 trait Bean
 {

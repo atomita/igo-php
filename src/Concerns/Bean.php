@@ -3,6 +3,26 @@ namespace atomita\Igo\Concerns;
 
 trait Bean
 {
+    public static function newInstance(array $parameters)
+    {
+        $class = new \ReflectionClass(static::class);
+
+        $args = [];
+
+        foreach ($class->getConstructor()->getParameters() as $i => $param) {
+            if (isset($parameters[$i])) {
+                $args[$i] = $parameters[$i];
+            } else {
+                $name = $param->getName();
+                if (isset($parameters[$name])) {
+                    $args[$i] = $parameters[$name];
+                }
+            }
+        }
+
+        return $class->newInstanceArgs($args);
+    }
+
     public function __get($property)
     {
         if (property_exists($this, $property)) {

@@ -22,4 +22,16 @@ class MorphemeTest extends TestCase
 
         assertThat($morpheme->toJson(), isJson());
     }
+
+    /**
+     * @testWith ["foo","bar",1]
+     */
+    public function testCanCreateInstanceFromArray($surface, $feature, $start)
+    {
+        $morpheme = Igo\Morpheme::newInstance(['surface' => $surface, 'feature' => $feature, 'start' => $start]);
+
+        assertEquals($surface, $morpheme->surface);
+        assertEquals($feature, $morpheme->feature);
+        assertEquals($start, $morpheme->start);
+    }
 }

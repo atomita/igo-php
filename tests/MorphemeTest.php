@@ -20,6 +20,6 @@ class MorphemeTest extends TestCase
         assertEquals($feature, $morpheme->feature);
         assertEquals($start, $morpheme->start);
 
-        assertThat((string) $morpheme, isJson());
+        assertThat($morpheme->toJson(), isJson());
     }
 }

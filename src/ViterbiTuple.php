@@ -19,10 +19,10 @@ class ViterbiTuple
     public function toArrayByReference()
     {
         return iterator_to_array((function () {
-            yield $this->node;
+            yield $this;
             
             while ($ref = $this->ref) {
-                yield $ref->node;
+                yield $ref;
             }
         })());
     }

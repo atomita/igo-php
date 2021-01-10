@@ -17,32 +17,37 @@ class Parser implements Contracts\Parseable
     {
         $len = mb_strlen($text);
 
-        $viterbiTupleMatrix = array_fill(0, $len + 1, null);
-        $viterbiTupleMatrix[0] = [new ViterbiTuple(null, new Piece(0, 0, 0, 0, 0, 0, false, ''), 0)];
+        $viterbiLattice = array_fill(0, $len + 1, null);
+        $viterbiLattice[0] = [new ViterbiTuple(null, new Piece(0, 0, 0, 0, 0, 0, false, ''), 0)];
 
         for ($i = 0; $i < $len; $i++) {
-            if (!empty($viterbiTupleMatrix[$i])) {
-                $prevs = $viterbiTupleMatrix[$i];
+            if (!empty($viterbiLattice[$i])) {
+                $prevs = $viterbiLattice[$i];
 
                 // Expect memory to be released
-                unset($viterbiTupleMatrix[$i]);
+                unset($viterbiLattice[$i]);
 
                 foreach ($this->dictionary->search($text, $i) as $piece) {
                     $end = $i + $piece->length;
 
                     if ($piece->isSpace) {
-                        $viterbiTupleMatrix[$end] = $prevs;
+                        $viterbiLattice[$end] = $prevs;
                     } else {
                         [$prev, $cost] = $this->getLowestCostPrevAndCost($piece->rightId, ...$prevs);
-                        $viterbiTupleMatrix[$end][] = new ViterbiTuple($prev, $piece, $cost);
+                        $viterbiLattice[$end][] = new ViterbiTuple($prev, $piece, $cost);
                     }
                 }
             }
         }
 
-        [$last] = $this->getLowestCostPrevAndCost(0, ...$viterbiTupleMatrix[$len]);
+        [$last] = $this->getLowestCostPrevAndCost(0, ...$viterbiLattice[$len]);
 
-        return new PieceIterator(array_reverse(array_slice($last->toArrayByReference(), -1)));
+        return new PieceIterator(
+            array_mep(
+                function ($v) { return $v->node; },
+                array_reverse(array_slice($last->toArrayByReference(), -1))
+            )
+        );
     }
 
     protected function getLowestCostPrevAndCost($rightId, ViterbiTuple ...$prevs)

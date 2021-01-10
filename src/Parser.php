@@ -13,7 +13,7 @@ class Parser implements Contracts\Parseable
      * @param  string  $text
      * @return Contracts\PieceIterable
      */
-    public function __invoke(string $text): Contracts\PieceIterable
+    public function parse(string $text): Contracts\PieceIterable
     {
         $len = mb_strlen($text);
 

@@ -3,10 +3,13 @@ namespace atomita\Igo;
 
 class Parser implements Contracts\Parseable
 {
-    public function __construct(Contracts\Searchable $dictionary array $matrix)
+    protected $dictionary;
+    protected $costCalculator;
+
+    public function __construct(Contracts\Searchable $dictionary Contracts\CostCalculatable $costCalculator)
     {
-        $this->dictionary = $dictionary;
-        $this->matrix     = $matrix;
+        $this->dictionary     = $dictionary;
+        $this->costCalculator = $costCalculator;
     }
 
     /**
@@ -33,7 +36,7 @@ class Parser implements Contracts\Parseable
                     if ($piece->isSpace) {
                         $viterbiLattice[$end] = $prevs;
                     } else {
-                        [$prev, $cost] = $this->getLowestCostPrevAndCost($piece->rightId, ...$prevs);
+                        [$prev, $cost] = $this->getLowestCostPrevAndCost($piece, ...$prevs);
                         $viterbiLattice[$end][] = new ViterbiTuple($prev, $piece, $cost);
                     }
                 }
@@ -50,12 +53,12 @@ class Parser implements Contracts\Parseable
         );
     }
 
-    protected function getLowestCostPrevAndCost($rightId, ViterbiTuple ...$prevs)
+    protected function getLowestCostPrevAndCost(Piece $piece, ViterbiTuple ...$prevs)
     {
         $lowest = [];
 
         foreach ($prevs as $prev) {
-            $cost = $prev->cost + $this->matrix[$prev->node->leftId][$rightId];
+            $cost = $prev->cost + $this->costCalculator->cost($prev->node, $piece);
             if (empty($lowest) || $cost < $lowest[1]) {
                 $lowest = [$prev, $cost];
             }

@@ -1,7 +1,7 @@
 <?php
 namespace atomita\Igo;
 
-class ViterbiNode
+class Piece
 {
     use Concerns\Bean;
 

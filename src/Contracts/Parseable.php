@@ -3,5 +3,5 @@ namespace atomita\Igo\Contracts;
 
 interface Parseable
 {
-    public function __invoke(string $text): ViterbiNodeIterable;
+    public function __invoke(string $text): PieceIterable;
 }

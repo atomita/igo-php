@@ -12,12 +12,12 @@ class Dictionary implements Contracts\Searchable
     /**
      * @param  string  $text
      * @param  int     $start
-     * preturn Contracts\ViterbiNodeIterable
+     * preturn Contracts\PieceIterable
      */
-    public function search(string $text, int $start): Contracts\ViterbiNodeIterable
+    public function search(string $text, int $start): Contracts\PieceIterable
     {
         // todo
         // wordsから探し、なければcategoriesから探す
-        return new ViterbiNodeIterator(...[]);
+        return new PieceIterator(...[]);
     }
 }

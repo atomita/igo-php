@@ -20,7 +20,7 @@ class ViterbiTuple
     {
         return iterator_to_array((function () {
             yield $this;
-            
+
             while ($ref = $this->ref) {
                 yield $ref;
             }

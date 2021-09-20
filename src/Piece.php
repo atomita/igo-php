@@ -5,14 +5,15 @@ class Piece
 {
     use Concerns\Bean;
 
+    protected $category;
     protected $cost;
+    protected $data;
     protected $isSpace;
     protected $leftId;
     protected $length;
     protected $rightId;
     protected $start;
     protected $wordId;
-    protected $data;
 
     public function __construct(
         int $wordId,
@@ -22,15 +23,22 @@ class Piece
         int $leftId,
         int $rightId,
         bool $isSpace,
-        string $data
+        ?callable $data = null,
+        ?Category $category = null
     ) {
-        $this->cost    = $cost;
-        $this->data    = $data;
-        $this->isSpace = $isSpace;
-        $this->leftId  = $leftId;
-        $this->length  = $length;
-        $this->rightId = $rightId;
-        $this->start   = $start;
-        $this->wordId  = $wordId;
+        $this->category = $category;
+        $this->cost     = $cost;
+        $this->data     = $data ?? [$this, 'returnEmptyString'];
+        $this->isSpace  = $isSpace;
+        $this->leftId   = $leftId;
+        $this->length   = $length;
+        $this->rightId  = $rightId;
+        $this->start    = $start;
+        $this->wordId   = $wordId;
+    }
+
+    public function returnEmptyString(): string
+    {
+        return '';
     }
 }

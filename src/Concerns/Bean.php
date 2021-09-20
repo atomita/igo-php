@@ -3,7 +3,7 @@ namespace atomita\Igo\Concerns;
 
 trait Bean
 {
-    public static function newInstance(array $parameters)
+    public static function newInstance(array $parameters): static
     {
         $class = new \ReflectionClass(static::class);
 
@@ -21,6 +21,11 @@ trait Bean
         }
 
         return $class->newInstanceArgs($args);
+    }
+
+    public function copy(array $parameters = []): static
+    {
+        return static::newInstance($parameters + $this->toArray());
     }
 
     public function __get($property)

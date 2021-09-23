@@ -27,22 +27,22 @@ class Dictionary implements Contracts\Searchable
     public function search(Text $text, int $start): Contracts\PieceIterable
     {
         return new PieceIterator(
-            ...$this->searchCategories($text, $start, ...$this->searchWords($text, $start))
+            ...$this->searchCategories($text, $start, $this->searchWords($text, $start))
         );
     }
 
     protected function searchWords(Text $text, int $start): \Generator
     {
-        $node = $this->base[0];
+        $node = $this->words->base[0];
 
         $length = $text->length();
 
         for ($i = $start; $i < $length; $i++) {
             $code = $text->charCode($i);
 
-            if ($this->check[$node] === 0) {
+            if ($this->words->check[$node] === 0) {
                 // match
-                yield from $this->createPiecesByIndex($start, $i - $start + 1, $this->base[$node]);
+                yield from $this->createPiecesByIndex($start, $i - $start + 1, $this->words->base[$node], false);
                 if ($code === 0) {
                     return;
                 }
@@ -50,9 +50,9 @@ class Dictionary implements Contracts\Searchable
 
 
             $idx  = $node + $code;
-            $node = $this->base[$idx];
+            $node = $this->words->base[$idx];
 
-            if ($this->check[$idx] !== $code) {
+            if ($this->words->check[$idx] !== $code) {
                 // not match
                 return;
             }
@@ -65,28 +65,71 @@ class Dictionary implements Contracts\Searchable
         }
     }
 
-    protected function searchCategories(Text $text, int $start, Piece ...$pieces): \Generator
+    protected function searchCategories(Text $text, int $start, \Generator $pieces): \Generator
     {
-        // todo
+        $isNotEmpty = $pieces->valid();
+
         yield from $pieces;
+
+        $char     = $text->char($start);
+        $category = $this->categories->getCategory($char);
+
+        if ($isNotEmpty && !$category->invoke) {
+            return;
+        }
+
+        $isSpace = $this->isSpace($category);
+
+        $rightLength = $text->length() - $start;
+        $length      = min($category->length < $rightLength);
+
+        if (0 < $length) {
+            for ($i = 1; $i < $length; $i++) {
+                yield from $this->createPiecesByIndex($start, $i, $category->id, $isSpace, $category);
+
+                if (!$this->category->isCompatible($char, $text->char($i + $start))) {
+                    return;
+                }
+            }
+            yield from $this->createPiecesByIndex($start, $i, $category->id, $isSpace, $category);
+        }
+
+        if ($category->group && $category->length < $rightLength) {
+            for ($i = $category->length + 1; $i < $rightLength; $i++) {
+                if (!$this->category->isCompatible($char, $text->char($i + $start))) {
+                    yield from $this->createPiecesByIndex($start, $i, $category->id, $isSpace, $category);
+                    return;
+                }
+            }
+            yield from $this->createPiecesByIndex($start, $i, $category->id, $isSpace, $category);
+        }
     }
 
-    protected function createPiecesByIndex($start, $length, $base, ?Category $category = null): \Generator
+    protected function isSpace(Category $category): bool
+    {
+        static $id = null;
+        if (is_null($id)) {
+            $id = $this->categories->getCategory(' ')->id;
+        }
+        return $id === $category->id;
+    }
+
+    protected function createPiecesByIndex($start, $length, $base, bool $isSpace, ?Category $category = null): \Generator
     {
         $trieId = $base * -1 - 1;
-        $end    = $this->indices[$trieId + 1];
+        $end    = $this->words->indices[$trieId + 1];
 
-        for ($i = $this->indices[$trieId]; $i < $end; $i++) {
+        for ($i = $this->words->indices[$trieId]; $i < $end; $i++) {
             yield new Piece(
                 $i,
                 $start,
                 $length,
-                $this->costs[$i],
-                $this->leftIds[$i],
-                $this->rightIds[$i],
-                false,
+                $this->words->costs[$i],
+                $this->words->leftIds[$i],
+                $this->words->rightIds[$i],
+                $isSpace,
                 function () use ($i) {
-                    return mb_substr($this->data, $this->dataOffsets[$i], $this->dataOffsets[$i + 1]);
+                    return mb_substr($this->words->data, $this->words->dataOffsets[$i], $this->words->dataOffsets[$i + 1]);
                 },
                 $category
             );
@@ -96,15 +139,15 @@ class Dictionary implements Contracts\Searchable
     protected function createPiecesByTail($text, $node, $start, $offset): \Generator
     {
         $id  = $node * -1 - 1;
-        $beg = $this->begs[$id];
-        $len = $this->lens[$id];
+        $beg = $this->words->begs[$id];
+        $len = $this->words->lens[$id];
 
         if ($text->length() - $offset <= $len) {
             return;
         }
 
-        if (mb_substr($this->tail, $beg, $len) == mb_substr((string)$text, $offset + 1, $len)) {
-            yield from $this->createPiecesByIndex($start, $offset - $start + 1 + $len, $node);
+        if (mb_substr($this->words->tail, $beg, $len) == mb_substr((string)$text, $offset + 1, $len)) {
+            yield from $this->createPiecesByIndex($start, $offset - $start + 1 + $len, $node, false);
         }
     }
 }

@@ -6,13 +6,6 @@ class Dictionary implements Contracts\Searchable
     protected $words;
     protected $categories;
 
-    protected $base;
-    protected $indices;
-    protected $begs;
-    protected $lens;
-    protected $check;
-    protected $tail;
-
     public function __construct($words, $categories)
     {
         $this->words      = $words;
@@ -87,7 +80,7 @@ class Dictionary implements Contracts\Searchable
             for ($i = 1; $i < $length; $i++) {
                 yield from $this->createPiecesByIndex($start, $i, $category->id, $isSpace, $category);
 
-                if (!$this->category->isCompatible($char, $text->char($i + $start))) {
+                if (!$this->categories->isCompatible($char, $text->char($i + $start))) {
                     return;
                 }
             }
@@ -96,7 +89,7 @@ class Dictionary implements Contracts\Searchable
 
         if ($category->group && $category->length < $rightLength) {
             for ($i = $category->length + 1; $i < $rightLength; $i++) {
-                if (!$this->category->isCompatible($char, $text->char($i + $start))) {
+                if (!$this->categories->isCompatible($char, $text->char($i + $start))) {
                     yield from $this->createPiecesByIndex($start, $i, $category->id, $isSpace, $category);
                     return;
                 }

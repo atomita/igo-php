@@ -10,7 +10,7 @@ class CostCalculator implements Contracts\CostCalculatable
         $this->matrix = $matrix;
     }
 
-    public function cost(Piece $legt, Piece $right): int
+    public function cost(Piece $left, Piece $right): int
     {
         return $this->matrix[$left->leftId][$right->rightId];
     }

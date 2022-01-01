@@ -15,7 +15,7 @@ class Dictionary implements Contracts\Searchable
     /**
      * @param  string  $text
      * @param  int     $start
-     * preturn Contracts\PieceIterable
+     * @return Contracts\PieceIterable
      */
     public function search(Text $text, int $start): Contracts\PieceIterable
     {
